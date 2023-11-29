@@ -1,0 +1,37 @@
+from openai import OpenAI
+from langchain.document_loaders import TextLoader
+from langchain.indexes import VectorstoreIndexCreator
+import os
+from credapi import *
+
+
+os.environ["OPENAI_API_KEY"] = API
+
+
+loader = TextLoader('data.txt')
+# loader = DirectoryLoader(".", glob="*.txt")
+index = VectorstoreIndexCreator().from_loaders([loader])
+client = OpenAI(organization=OrgID, api_key=API)
+
+
+while True:
+  prompt = input("enter: ")
+
+  if prompt == "quit":
+    break
+
+  a = index.query(prompt, retriever_kwargs={"search_kwargs": {"k": 1}})
+
+  if "I don't know" not in a:
+    print(a)
+
+  else:
+    completion = client.chat.completions.create(
+      model="gpt-3.5-turbo",
+      messages=[
+        {"role": "system", "content": "You generate a content ideas with popular two or three hastags related to content"},
+        {"role": "user", "content": prompt}
+      ]
+    )
+
+    print(completion.choices[0].message.content)
