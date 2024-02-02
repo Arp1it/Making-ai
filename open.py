@@ -16,6 +16,7 @@ loader = TextLoader('data.txt')
 index = VectorstoreIndexCreator().from_loaders([loader])
 
 a = index.query(prompt, retriever_kwargs={"search_kwargs": {"k": 1}})
+# a = index.query(prompt, llm=ChatOpenAI())
 
 if "I don't know" not in a:
   print(a)
